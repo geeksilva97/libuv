@@ -21,6 +21,7 @@
 #include "uv.h"
 #include "uv-common.h"
 #include "heap-inl.h"
+#include <stdio.h>
 
 #include <limits.h>
 
@@ -162,6 +163,7 @@ int uv__next_timeout(const uv_loop_t* loop) {
 
 
 void uv__run_timers(uv_loop_t* loop) {
+  printf("Running timers\n");
   struct heap_node* heap_node;
   uv_timer_t* handle;
   struct uv__queue* queue_node;
@@ -191,6 +193,8 @@ void uv__run_timers(uv_loop_t* loop) {
     uv_timer_again(handle);
     handle->timer_cb(handle);
   }
+
+  printf("Timers run completed\n");
 }
 
 

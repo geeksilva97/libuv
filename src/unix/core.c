@@ -443,13 +443,14 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
   }
 
   while (r != 0 && loop->stop_flag == 0) {
+    printf("Loop tick\n");
     can_sleep =
         uv__queue_empty(&loop->pending_queue) &&
         uv__queue_empty(&loop->idle_handles);
 
     uv__run_pending(loop);
-    uv__run_idle(loop);
-    uv__run_prepare(loop);
+    uv__run_idle(loop); // where the fuck is this implemented?
+    uv__run_prepare(loop); // where the fuck is this implemented?
 
     timeout = 0;
     if ((mode == UV_RUN_ONCE && can_sleep) || mode == UV_RUN_DEFAULT)
@@ -478,6 +479,7 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     uv__run_timers(loop);
 
     r = uv__loop_alive(loop);
+    printf("Finished tick\n Is loop alive? %d\n", r);
     if (mode == UV_RUN_ONCE || mode == UV_RUN_NOWAIT)
       break;
   }
@@ -844,6 +846,8 @@ static void uv__run_pending(uv_loop_t* loop) {
   struct uv__queue pq;
   uv__io_t* w;
 
+  printf("Running pending callbacks\n");
+
   uv__queue_move(&loop->pending_queue, &pq);
 
   while (!uv__queue_empty(&pq)) {
@@ -853,6 +857,8 @@ static void uv__run_pending(uv_loop_t* loop) {
     w = uv__queue_data(q, uv__io_t, pending_queue);
     w->cb(loop, w, POLLOUT);
   }
+
+  printf("Finished running pending callbacks\n");
 }
 
 
