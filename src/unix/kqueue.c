@@ -244,6 +244,8 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
     w->events = w->pevents;
   }
 
+  printf("Finished polling IO with timeout %d ms\n", timeout);
+
   pset = NULL;
   if (loop->flags & UV_LOOP_BLOCK_SIGPROF) {
     pset = &set;
@@ -474,8 +476,6 @@ update_timeout:
 
     timeout -= diff;
   }
-
-  printf("Finished polling IO with timeout %d ms\n", timeout);
 }
 
 

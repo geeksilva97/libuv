@@ -33,7 +33,7 @@ int uv_loop_init(uv_loop_t* loop) {
   void* saved_data;
   int err;
 
-  printf("Loop Started\n");
+  printf("Loop Initialized: %p\n", (void*)loop);
 
   saved_data = loop->data;
   memset(loop, 0, sizeof(*loop));

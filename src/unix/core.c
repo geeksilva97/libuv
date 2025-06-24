@@ -423,11 +423,18 @@ int uv_loop_alive(const uv_loop_t* loop) {
   return uv__loop_alive(loop);
 }
 
+int is_default = -1;
 
 int uv_run(uv_loop_t* loop, uv_run_mode mode) {
   int timeout;
   int r;
   int can_sleep;
+  uv_loop_t* default_loop = uv_default_loop();
+  is_default = (loop == default_loop);
+
+  if(is_default) {
+    printf("\nLoop started [%p]\n\n", (void*)loop);
+  }
 
   r = uv__loop_alive(loop);
   if (!r)
@@ -443,14 +450,17 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
   }
 
   while (r != 0 && loop->stop_flag == 0) {
-    printf("Loop tick\n");
+    if(is_default) {
+      printf("\n\tStarted tick [%p]\n\n", (void*)loop);
+    }
+
     can_sleep =
         uv__queue_empty(&loop->pending_queue) &&
         uv__queue_empty(&loop->idle_handles);
 
     uv__run_pending(loop);
-    uv__run_idle(loop); // where the fuck is this implemented?
-    uv__run_prepare(loop); // where the fuck is this implemented?
+    uv__run_idle(loop);
+    uv__run_prepare(loop);
 
     timeout = 0;
     if ((mode == UV_RUN_ONCE && can_sleep) || mode == UV_RUN_DEFAULT)
@@ -479,9 +489,15 @@ int uv_run(uv_loop_t* loop, uv_run_mode mode) {
     uv__run_timers(loop);
 
     r = uv__loop_alive(loop);
-    printf("Finished tick\n Is loop alive? %d\n", r);
+    if (is_default) {
+      printf("\tFinished Tick for loop [%p]\n\n", (void*)loop);
+    }
     if (mode == UV_RUN_ONCE || mode == UV_RUN_NOWAIT)
       break;
+  }
+
+  if (is_default) {
+    printf("\nLoop finished [%p]\n\n", (void*)loop);
   }
 
   /* The if statement lets gcc compile it to a conditional store. Avoids
@@ -845,8 +861,11 @@ static void uv__run_pending(uv_loop_t* loop) {
   struct uv__queue* q;
   struct uv__queue pq;
   uv__io_t* w;
+  int count = 0;
 
-  printf("Running pending callbacks\n");
+  if (is_default) {
+    printf("\tRunning pending callbacks for loop\n");
+  }
 
   uv__queue_move(&loop->pending_queue, &pq);
 
@@ -856,9 +875,13 @@ static void uv__run_pending(uv_loop_t* loop) {
     uv__queue_init(q);
     w = uv__queue_data(q, uv__io_t, pending_queue);
     w->cb(loop, w, POLLOUT);
+    count++;
   }
 
-  printf("Finished running pending callbacks\n");
+  if (is_default) {
+    printf("Ran %d pending callbacks\n", count);
+    printf("Finished running pending callbacks\n");
+  }
 }
 
 
