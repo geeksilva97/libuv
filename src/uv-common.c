@@ -901,6 +901,7 @@ int uv_loop_close(uv_loop_t* loop) {
   if (loop == default_loop_ptr)
     default_loop_ptr = NULL;
 
+  printf("Loops %p closed.\n", (void*) loop);
   return 0;
 }
 

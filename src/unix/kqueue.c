@@ -157,6 +157,7 @@ static void uv__kqueue_delete(int kqfd, const struct kevent *ev) {
 
 
 void uv__io_poll(uv_loop_t* loop, int timeout) {
+  printf("Started polling IO with timeout %d ms\n", timeout);
   uv__loop_internal_fields_t* lfields;
   struct kevent events[1024];
   struct kevent* ev;
@@ -242,6 +243,8 @@ void uv__io_poll(uv_loop_t* loop, int timeout) {
 
     w->events = w->pevents;
   }
+
+  printf("Finished polling IO with timeout %d ms\n", timeout);
 
   pset = NULL;
   if (loop->flags & UV_LOOP_BLOCK_SIGPROF) {

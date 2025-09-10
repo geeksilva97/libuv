@@ -26,11 +26,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 
 int uv_loop_init(uv_loop_t* loop) {
   uv__loop_internal_fields_t* lfields;
   void* saved_data;
   int err;
+
+  printf("Loop Initialized: %p\n", (void*)loop);
 
   saved_data = loop->data;
   memset(loop, 0, sizeof(*loop));

@@ -21,6 +21,7 @@
 
 #include "uv.h"
 #include "internal.h"
+#include <stdio.h>
 
 #define UV_LOOP_WATCHER_DEFINE(name, type)                                    \
   int uv_##name##_init(uv_loop_t* loop, uv_##name##_t* handle) {              \
@@ -46,6 +47,7 @@
   }                                                                           \
                                                                               \
   void uv__run_##name(uv_loop_t* loop) {                                      \
+    printf("Started running %s callbacks for loop %p\n", #name, (void*)loop);                                    \
     uv_##name##_t* h;                                                         \
     struct uv__queue queue;                                                   \
     struct uv__queue* q;                                                      \
@@ -57,6 +59,7 @@
       uv__queue_insert_tail(&loop->name##_handles, q);                        \
       h->name##_cb(h);                                                        \
     }                                                                         \
+    printf("Finished running %s callbacks for loop %p\n", #name, (void*)loop);                           \
   }                                                                           \
                                                                               \
   void uv__##name##_close(uv_##name##_t* handle) {                            \
